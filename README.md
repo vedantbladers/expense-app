@@ -2,7 +2,7 @@
 
 A comprehensive full-stack expense management application with AI-powered receipt parsing, role-based authentication, and approval workflows. Built with React, Node.js, Python FastAPI, and MySQL.
 
-Drive video link:  https://drive.google.com/drive/folders/1RQ9jMDRAHePYVH_dESNtnXFTyKK8ybaE?usp=sharing
+Demo video link:  https://drive.google.com/drive/folders/1RQ9jMDRAHePYVH_dESNtnXFTyKK8ybaE?usp=sharing
 
 
 ## Project Structure
