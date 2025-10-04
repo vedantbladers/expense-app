@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
+import RoleBasedNavbar from '../components/RoleBasedNavbar';
 
 export default function ApprovalRulesAdmin() {
   const [approvers, setApprovers] = useState([
@@ -19,8 +20,9 @@ export default function ApprovalRulesAdmin() {
   };
 
   return (
-    <div className="min-h-screen bg-base-100 p-8" data-theme="light">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-base-100" data-theme="light">
+      <RoleBasedNavbar />
+      <div className="max-w-7xl mx-auto p-8">
         {/* Header */}
         <h1 className="text-4xl font-bold mb-8 text-center">Admin View (Approval Rules)</h1>
 

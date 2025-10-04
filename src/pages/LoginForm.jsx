@@ -1,16 +1,88 @@
 import { useState } from "react";
 import { User, Lock } from "lucide-react";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add login logic here
+    setIsLoading(true);
+
+    // Show loading toast
+    const loadingToast = toast.loading('Signing in...');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+
+      if (response.ok) {
+        // Success toast
+        toast.success(data.message || 'Login successful!', {
+          duration: 4000,
+          icon: '🎉',
+        });
+
+                // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('isLoggedIn', 'true');
+
+        console.log('Login successful:', data.user);
+        
+        // Redirect based on user role
+        setTimeout(() => {
+          const user = data.user;
+          switch(user.role) {
+            case 'admin':
+              window.location.href = '/admin-user-management';
+              break;
+            case 'manager':
+              window.location.href = '/manager';
+              break;
+            case 'employee':
+            default:
+              window.location.href = '/employee';
+              break;
+          }
+        }, 1500);
+        
+        // Redirect to dashboard after successful login
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1500);
+        
+      } else {
+        // Error toast
+        toast.error(data.message || 'Login failed!', {
+          duration: 4000,
+          icon: '❌',
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.dismiss(loadingToast);
+      toast.error('Connection error. Please check if the server is running.', {
+        duration: 5000,
+        icon: '🔌',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -51,9 +123,19 @@ export default function LoginForm() {
               required
               placeholder="Enter your password"
             />
+            <label className="label">
+              <span className="label-text-alt"></span>
+              <a href="/forgot-password" className="label-text-alt link link-hover link-primary">
+                Forgot password?
+              </a>
+            </label>
           </div>
-          <button type="submit" className="btn btn-primary w-full mt-2">
-            Login
+          <button 
+            type="submit" 
+            className={`btn btn-primary w-full mt-2 ${isLoading ? 'loading' : ''}`}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing in...' : 'Login'}
           </button>
         </form>
         <div className="text-center mt-4">
@@ -62,6 +144,28 @@ export default function LoginForm() {
           </a>
         </div>
       </div>
+      
+      {/* Toast container */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            style: {
+              background: '#10B981',
+            },
+          },
+          error: {
+            style: {
+              background: '#EF4444',
+            },
+          },
+        }}
+      />
     </div>
   );
 }

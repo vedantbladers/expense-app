@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { UserPlus, Mail, Lock, Globe, User } from "lucide-react";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SignupForm() {
   const [form, setForm] = useState({
@@ -7,8 +8,10 @@ export default function SignupForm() {
     email: "",
     password: "",
     country: "",
+    role: "",
   });
   const [countries, setCountries] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetch("https://restcountries.com/v3.1/all?fields=name,currencies")
@@ -21,6 +24,10 @@ export default function SignupForm() {
           }))
           .sort((a, b) => a.name.localeCompare(b.name));
         setCountries(countryList);
+      })
+      .catch((error) => {
+        console.error('Error fetching countries:', error);
+        toast.error('Failed to load countries list');
       });
   }, []);
 
@@ -28,9 +35,100 @@ export default function SignupForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add signup logic here
+    setIsLoading(true);
+
+    // Validation
+    if (form.password.length < 6) {
+      toast.error('Password must be at least 6 characters long', {
+        icon: '🔒',
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!form.role) {
+      toast.error('Please select your role', {
+        icon: '👤',
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    // Show loading toast
+    const loadingToast = toast.loading('Creating your account...');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+
+      if (response.ok) {
+        // Success toast
+        toast.success(data.message || 'Account created successfully!', {
+          duration: 5000,
+          icon: '🎉',
+        });
+
+        // Clear form
+        setForm({
+          name: "",
+          email: "",
+          password: "",
+          country: "",
+          role: "",
+        });
+
+        // Store user data
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('isLoggedIn', 'true');
+
+        console.log('Signup successful:', data.user);
+        
+        // Redirect based on role after successful signup
+        setTimeout(() => {
+          const user = data.user;
+          switch(user.role) {
+            case 'admin':
+              window.location.href = '/admin-user-management';
+              break;
+            case 'manager':
+              window.location.href = '/manager';
+              break;
+            case 'employee':
+            default:
+              window.location.href = '/employee';
+              break;
+          }
+        }, 2000);
+        
+      } else {
+        // Error toast
+        toast.error(data.message || 'Signup failed!', {
+          duration: 4000,
+          icon: '❌',
+        });
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast.dismiss(loadingToast);
+      toast.error('Connection error. Please check if the server is running.', {
+        duration: 5000,
+        icon: '🔌',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -109,8 +207,29 @@ export default function SignupForm() {
               ))}
             </select>
           </div>
-          <button type="submit" className="btn btn-primary w-full mt-2">
-            Sign Up
+          <div className="form-control">
+            <label className="label font-semibold flex items-center gap-2">
+              <UserPlus size={16} /> Role
+            </label>
+            <select
+              name="role"
+              className="select select-bordered"
+              value={form.role}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select your role</option>
+              <option value="employee">👤 Employee</option>
+              <option value="manager">👔 Manager</option>
+              <option value="admin">👑 Administrator</option>
+            </select>
+          </div>
+          <button 
+            type="submit" 
+            className={`btn btn-primary w-full mt-2 ${isLoading ? 'loading' : ''}`}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
         <div className="text-center mt-4">
@@ -119,6 +238,28 @@ export default function SignupForm() {
           </a>
         </div>
       </div>
+      
+      {/* Toast container */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            style: {
+              background: '#10B981',
+            },
+          },
+          error: {
+            style: {
+              background: '#EF4444',
+            },
+          },
+        }}
+      />
     </div>
   );
 }

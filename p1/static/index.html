@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Parser</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Receipt Parser with Gemini AI</h1>
+
+        <div class="card">
+            <h2>Upload Receipt</h2>
+            <form id="receipt-form">
+                <div class="form-group">
+                    <label for="receipt">Select Receipt Image</label>
+                    <input type="file" id="receipt" accept="image/*" required>
+                </div>
+                <button type="submit">Parse Receipt</button>
+            </form>
+            <div id="loading" class="loading" style="display: none;">Processing...</div>
+        </div>
+
+        <div class="card" id="result-card" style="display: none;">
+            <h2>Parsed Receipt Data</h2>
+            <div class="result-grid">
+                <div class="result-item">
+                    <strong>Merchant:</strong>
+                    <span id="merchant"></span>
+                </div>
+                <div class="result-item">
+                    <strong>Date:</strong>
+                    <span id="date"></span>
+                </div>
+                <div class="result-item">
+                    <strong>Total:</strong>
+                    <span id="total"></span>
+                </div>
+                <div class="result-item">
+                    <strong>Currency:</strong>
+                    <span id="currency"></span>
+                </div>
+            </div>
+            <div class="result-section">
+                <strong>Items:</strong>
+                <ul id="items"></ul>
+            </div>
+            <div class="result-section">
+                <strong>Additional Info:</strong>
+                <div id="additional-info"></div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

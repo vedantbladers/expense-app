@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Mail, UserPlus } from 'lucide-react';
+import RoleBasedNavbar from '../components/RoleBasedNavbar';
 
 export default function AdminUserManagement() {
   const [users, setUsers] = useState([
@@ -65,8 +66,9 @@ export default function AdminUserManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-base-200">
+      <RoleBasedNavbar />
+      <div className="max-w-7xl mx-auto space-y-6 p-6">
         <h1 className="text-3xl font-bold text-primary mb-6">
           Admin User Management
         </h1>
